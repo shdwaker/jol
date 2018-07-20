@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.openjdk.jol.layouters.PrimitiveType;
 import org.openjdk.jol.util.ClassUtils;
 import org.openjdk.jol.vm.ContendedSupport;
 
@@ -231,17 +232,7 @@ public class ClassData {
 
         for (FieldData f : fields) {
             String simpleName = f.typeClass();
-
-            if (
-                !simpleName.equals("boolean") &&
-                !simpleName.equals("byte") &&
-                !simpleName.equals("short") &&
-                !simpleName.equals("char") &&
-                !simpleName.equals("int") &&
-                !simpleName.equals("float") &&
-                !simpleName.equals("long") &&
-                !simpleName.equals("double")
-            ) {
+            if (!PrimitiveType.isPrimitiveType(simpleName)) {
                 count++;
             }
         }
