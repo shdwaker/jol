@@ -163,7 +163,7 @@ public class ClassData {
         this.name = arrayKlass;
         this.arrayKlass = arrayKlass;
         this.arrayComponentKlass = componentKlass;
-        this.fields = null;
+        this.fields = Collections.emptyList();
         this.classNames = null;
         this.length = length;
         this.isArray = true;
@@ -206,7 +206,7 @@ public class ClassData {
      */
     public Collection<FieldData> fields() {
         if (isArray) {
-            return Collections.emptyList();
+            return fields; // i.e. Collections.emptyList();
         } else {
             return Collections.unmodifiableList(fields);
         }
@@ -374,14 +374,14 @@ public class ClassData {
             return false;
         if (arrayKlass != null ? !arrayKlass.equals(classData.arrayKlass) : classData.arrayKlass != null) return false;
         if (classNames != null ? !classNames.equals(classData.classNames) : classData.classNames != null) return false;
-        if (fields != null ? !fields.equals(classData.fields) : classData.fields != null) return false;
+        if (!fields.equals(classData.fields)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = fields != null ? fields.hashCode() : 0;
+        int result = fields.hashCode();
         result = 31 * result + (classNames != null ? classNames.hashCode() : 0);
         result = 31 * result + (arrayKlass != null ? arrayKlass.hashCode() : 0);
         result = 31 * result + (arrayComponentKlass != null ? arrayComponentKlass.hashCode() : 0);
