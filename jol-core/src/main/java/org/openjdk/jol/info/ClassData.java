@@ -101,7 +101,7 @@ public class ClassData {
         cd.isContended = ContendedSupport.isContended(klass);
 
         if (superKlass != null) {
-            cd.addSuperClassData(klass.getSuperclass());
+            cd.addSuperClassData(parseClass(klass.getSuperclass()));
         }
 
         do {
@@ -183,10 +183,10 @@ public class ClassData {
     /**
      * Add the super-class data of the class.
      *
-     * @param superClass super class
+     * @param superClassData parsed super class
      */
-    public void addSuperClassData(Class superClass) {
-        this.superClass = parseClass(superClass);
+    public void addSuperClassData(ClassData superClassData) {
+        this.superClass = superClassData;
     }
 
     /**
