@@ -76,7 +76,7 @@ public class FieldData {
     private final boolean isContended;
     private final String contendedGroup;
 
-    private FieldData(Field refField, long vmOffset, String hostKlass, String fieldName, String fieldType,
+    public FieldData(Field refField, long vmOffset, String hostKlass, String fieldName, String fieldType,
                       boolean isContended, String contendedGroup) {
         this.klass = hostKlass;
         this.name = fieldName;
