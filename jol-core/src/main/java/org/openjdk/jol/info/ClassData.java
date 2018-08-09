@@ -28,7 +28,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -205,7 +204,7 @@ public class ClassData {
      *
      * @return field data
      */
-    public Collection<FieldData> fields() {
+    public List<FieldData> fields() {
         if (isArray) {
             return fields; // i.e. Collections.emptyList();
         } else {
@@ -218,7 +217,7 @@ public class ClassData {
      *
      * @return field data
      */
-    public Collection<FieldData> ownFields() {
+    public List<FieldData> ownFields() {
         return fieldsFor(classNames.get(classNames.size() - 1));
     }
 
@@ -246,7 +245,7 @@ public class ClassData {
      * @param klass class name
      * @return field data
      */
-    public Collection<FieldData> fieldsFor(String klass) {
+    public List<FieldData> fieldsFor(String klass) {
         List<FieldData> r = new ArrayList<FieldData>();
         for (FieldData f : fields) {
             if (f.hostClass().equals(klass)) {
