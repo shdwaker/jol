@@ -51,7 +51,7 @@ public class GraphLayoutTest {
                 aSize,
                 aSize_insta);
 
-        Assert.assertNotSame("GraphLayout and ClassLayout sizes disagree on B",
+        Assert.assertNotEquals("GraphLayout and ClassLayout sizes disagree on B",
                 bSize,
                 bSize_insta);
 
