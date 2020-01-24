@@ -100,8 +100,7 @@ public class StringCompress implements Operation {
             res.add(service.submit(new Worker(arg)));
         }
 
-        for (int i = 0; i < res.size(); i++) {
-            Future<?> f = res.get(i);
+        for (Future<?> f : res) {
             try {
                 f.get();
             } catch (ExecutionException e) {
