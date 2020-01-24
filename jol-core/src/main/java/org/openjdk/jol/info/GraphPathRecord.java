@@ -32,21 +32,19 @@ import org.openjdk.jol.vm.VM;
  *
  * @author Aleksey Shipilev
  */
-public class GraphPathRecord {
-    private final GraphPathRecord parent;
-    private final String path;
+public abstract class GraphPathRecord {
+    protected final GraphPathRecord parent;
     private final int depth;
     private final Object obj;
-    private final long size;
+    private long size;
     private final long address;
     private String toString;
 
-    GraphPathRecord(GraphPathRecord parent, String path, int depth, Object obj) {
+    GraphPathRecord(GraphPathRecord parent, int depth, Object obj) {
         this.parent = parent;
-        this.path = path;
         this.obj = obj;
         this.depth = depth;
-        this.size = VM.current().sizeOf(obj);
+        // Address might change, capture it as soon as possible.
         this.address = VM.current().addressOf(obj);
     }
 
@@ -54,19 +52,17 @@ public class GraphPathRecord {
         return obj;
     }
 
-    public String path() {
-        if (parent != null) {
-            return parent.path() + path;
-        } else {
-            return path;
-        }
-    }
+    public abstract String path();
 
     public Class<?> klass() {
         return obj.getClass();
     }
 
     public long size() {
+        if (size == 0) {
+            // Object size would not change, fine to compute lazily.
+            size = VM.current().sizeOf(obj);
+        }
         return size;
     }
 

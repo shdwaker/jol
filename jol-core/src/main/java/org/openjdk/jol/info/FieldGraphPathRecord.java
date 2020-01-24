@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2020, Red Hat Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,37 +22,27 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
-package org.openjdk.jol.operations;
-
-import org.openjdk.jol.info.GraphLayout;
-
-import java.lang.reflect.Constructor;
-
-import static java.lang.System.out;
+package org.openjdk.jol.info;
 
 /**
+ * Object path in object graph.
+ *
  * @author Aleksey Shipilev
  */
-public class ObjectExternals extends ClasspathedOperation {
+public class FieldGraphPathRecord extends GraphPathRecord {
+    private final String name;
 
-    @Override
-    public String label() {
-        return "externals";
+    FieldGraphPathRecord(GraphPathRecord parent, String name, int depth, Object obj) {
+        super(parent, depth, obj);
+        this.name = name;
     }
 
     @Override
-    public String description() {
-        return "Show the object externals: the objects reachable from a given instance.";
-    }
-
-    public void runWith(Class<?> klass) throws Exception {
-        try {
-            Object o = tryInstantiate(klass);
-            out.println(GraphLayout.parseInstance(o).toPrintable());
-        } catch (NoSuchMethodException | InstantiationException e) {
-            throw new IllegalStateException("Instantiation exception, does the class have the default constructor?", e);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException("Illegal access exception, does the class have the public default constructor?", e);
+    public String path() {
+        if (parent != null) {
+            return parent.path() + "." + name;
+        } else {
+            return name;
         }
     }
 

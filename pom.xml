@@ -29,7 +29,7 @@ questions.
 
     <groupId>org.openjdk.jol</groupId>
     <artifactId>jol-parent</artifactId>
-    <version>0.10-SNAPSHOT</version>
+    <version>0.10</version>
     <packaging>pom</packaging>
 
     <name>Java Object Layout: Parent</name>
@@ -67,10 +67,11 @@ questions.
         <module>jol-core</module>
         <module>jol-cli</module>
         <module>jol-samples</module>
+        <module>jol-benchmarks</module>
     </modules>
 
     <prerequisites>
-        <maven>3.0</maven>
+        <maven>3.2</maven>
     </prerequisites>
 
     <dependencyManagement>
@@ -104,7 +105,7 @@ questions.
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.0.0-M1</version>
+                    <version>3.0.1</version>
                 </plugin>
                 <plugin>
                     <groupId>com.mycila.maven-license-plugin</groupId>
@@ -114,7 +115,7 @@ questions.
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-shade-plugin</artifactId>
-                    <version>2.2</version>
+                    <version>3.2.1</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -122,6 +123,7 @@ questions.
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jol.target>1.7</jol.target>
     </properties>
 
 </project>

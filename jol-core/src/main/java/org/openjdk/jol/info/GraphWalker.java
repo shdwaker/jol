@@ -28,12 +28,7 @@ import org.openjdk.jol.util.ObjectUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Basic class to walk object graphs.
@@ -45,11 +40,13 @@ public class GraphWalker {
     private final Set<Object> visited;
     private final Object[] roots;
     private final Collection<GraphVisitor> visitors;
+    private final Map<Class<?>, Field[]> fieldsCache;
 
     public GraphWalker(Object... roots) {
         this.roots = roots;
         this.visited = Collections.newSetFromMap(new IdentityHashMap<Object, Boolean>());
-        this.visitors = new ArrayList<GraphVisitor>();
+        this.visitors = new ArrayList<>();
+        this.fieldsCache = new HashMap<>();
     }
 
     public void addVisitor(GraphVisitor v) {
@@ -57,27 +54,55 @@ public class GraphWalker {
     }
 
     public void walk() {
-        List<GraphPathRecord> curLayer = new ArrayList<GraphPathRecord>();
-        List<GraphPathRecord> newLayer = new ArrayList<GraphPathRecord>();
+        List<GraphPathRecord> curLayer = new ArrayList<>();
+        List<GraphPathRecord> newLayer = new ArrayList<>();
 
         int rootId = 1;
         boolean single = (roots.length == 1);
         for (Object root : roots) {
             String label = single ? "" : ("<r" + rootId + ">");
-            GraphPathRecord e = new GraphPathRecord(null, label, 0, root);
-            visited.add(root);
-            visitObject(e);
-            curLayer.add(e);
+            GraphPathRecord e = new FieldGraphPathRecord(null, label, 0, root);
+            if (visited.add(root)) {
+                visitObject(e);
+                curLayer.add(e);
+            }
             rootId++;
         }
 
         while (!curLayer.isEmpty()) {
             newLayer.clear();
             for (GraphPathRecord next : curLayer) {
-                for (GraphPathRecord ref : peelReferences(next)) {
-                    if (visited.add(ref.obj())) {
-                        visitObject(ref);
-                        newLayer.add(ref);
+                Object o = next.obj();
+
+                if (o.getClass().isArray()) {
+                    if (o.getClass().getComponentType().isPrimitive()) {
+                        // Nothing to do here
+                        continue;
+                    }
+
+                    Object[] arr = (Object[]) o;
+
+                    for (int i = 0; i < arr.length; i++) {
+                        Object e = arr[i];
+                        if (e != null) {
+                            if (visited.add(e)) {
+                                GraphPathRecord gpr = new ArrayGraphPathRecord(next, i, next.depth() + 1, e);
+                                visitObject(gpr);
+                                newLayer.add(gpr);
+                            }
+                        }
+                    }
+                } else {
+                    Field[] fields = getAllReferences(o.getClass());
+                    for (Field f : fields) {
+                        Object e = ObjectUtils.value(o, f);
+                        if (e != null) {
+                            if (visited.add(e)) {
+                                GraphPathRecord gpr = new FieldGraphPathRecord(next, f.getName(), next.depth() + 1, e);
+                                visitObject(gpr);
+                                newLayer.add(gpr);
+                            }
+                        }
                     }
                 }
             }
@@ -92,43 +117,13 @@ public class GraphWalker {
         }
     }
 
-    private List<GraphPathRecord> peelReferences(GraphPathRecord r) {
-        Object o = r.obj();
-
-        if (o == null) {
-            // Nothing to do here
-            return Collections.emptyList();
+    private Field[] getAllReferences(Class<?> klass) {
+        Field[] exist = fieldsCache.get(klass);
+        if (exist != null) {
+            return exist;
         }
 
-        if (o.getClass().isArray() && o.getClass().getComponentType().isPrimitive()) {
-            // Nothing to do here
-            return Collections.emptyList();
-        }
-
-        List<GraphPathRecord> result = new ArrayList<GraphPathRecord>();
-
-        if (o.getClass().isArray()) {
-            int c = 0;
-            for (Object e : (Object[]) o) {
-                if (e != null) {
-                    result.add(new GraphPathRecord(r, "[" + c + "]", r.depth() + 1, e));
-                }
-                c++;
-            }
-        } else {
-            for (Field f : getAllReferences(o.getClass())) {
-                Object e = ObjectUtils.value(o, f);
-                if (e != null) {
-                    result.add(new GraphPathRecord(r, "." + f.getName(), r.depth() + 1, e));
-                }
-            }
-        }
-
-        return result;
-    }
-
-    private Collection<Field> getAllReferences(Class<?> klass) {
-        List<Field> results = new ArrayList<Field>();
+        List<Field> results = new ArrayList<>();
 
         for (Field f : klass.getDeclaredFields()) {
             if (Modifier.isStatic(f.getModifiers())) continue;
@@ -145,7 +140,10 @@ public class GraphWalker {
             }
         }
 
-        return results;
+        Field[] arr = results.toArray(new Field[0]);
+        fieldsCache.put(klass, arr);
+
+        return arr;
     }
 
 }
