@@ -28,7 +28,7 @@ questions.
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.openjdk.jol</groupId>
+        <groupId>com.github.stokito.jol</groupId>
         <artifactId>jol-parent</artifactId>
         <version>0.10</version>
     </parent>
