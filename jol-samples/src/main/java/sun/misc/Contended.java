@@ -37,5 +37,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Contended {
+public @interface Contended { String value() default "";
 }
